@@ -1,6 +1,7 @@
 package tasks.adts
 import u03.extensionmethods.Optionals.*
-import u03.extensionmethods.Sequences.*
+import ExtensionSequence.*
+
 
 /*  Exercise 2: 
  *  Implement the below trait, and write a meaningful test.
@@ -9,7 +10,6 @@ import u03.extensionmethods.Sequences.*
  *  - For other suggestions look directly to the methods and their description
  */
 object SchoolModel:
-
   trait SchoolModule:
     type School
     type Teacher
@@ -55,7 +55,7 @@ object SchoolModel:
        * Note!! If there are duplicates, just return them once
        * @return the list of courses
        */
-      def courses: Sequence[String]
+      //def courses: Sequence[String]
       /**
        * This method should return the list of teachers
        * e.g.,
@@ -111,16 +111,19 @@ object SchoolModel:
        */
       def hasCourse(name: String): Boolean
   object BasicSchoolModule extends SchoolModule:
-    override type School = Nothing
-    override type Teacher = Nothing
-    override type Course = Nothing
+    case class TeacherImpl(name:String)
+    case class CourseImpl(name:String)
+    case class SchoolImpl(teacherToCourse: Sequence[(Teacher, Course)])
+    override type School = SchoolImpl
+    override type Teacher = TeacherImpl
+    override type Course = CourseImpl
 
-    def teacher(name: String): Teacher = ???
-    def course(name: String): Course = ???
-    def emptySchool: School = ???
+    def teacher(name: String): Teacher = TeacherImpl(name)
+    def course(name: String): Course = CourseImpl(name)
+    def emptySchool: School = SchoolImpl(Sequence.Nil())
 
     extension (school: School)
-      def courses: Sequence[String] = ???
+      //def courses: Sequence[String] = map(distinct(map(school.teacherToCourse)(_._2.name)))(identity)
       def teachers: Sequence[String] = ???
       def setTeacherToCourse(teacher: Teacher, course: Course): School = ???
       def coursesOfATeacher(teacher: Teacher): Sequence[Course] = ???
@@ -130,7 +133,7 @@ object SchoolModel:
   import SchoolModel.BasicSchoolModule.*
   val school = emptySchool
   println(school.teachers) // Nil()
-  println(school.courses) // Nil()
+  //println(school.courses) // Nil()
   println(school.hasTeacher("John")) // false
   println(school.hasCourse("Math")) // false
   val john = teacher("John")
@@ -138,13 +141,13 @@ object SchoolModel:
   val italian = course("Italian")
   val school2 = school.setTeacherToCourse(john, math)
   println(school2.teachers) // Cons("John", Nil())
-  println(school2.courses) // Cons("Math", Nil())
+  //println(school2.courses) // Cons("Math", Nil())
   println(school2.hasTeacher("John")) // true
   println(school2.hasCourse("Math")) // true
   println(school2.hasCourse("Italian")) // false
   val school3 = school2.setTeacherToCourse(john, italian)
   println(school3.teachers) // Cons("John", Nil())
-  println(school3.courses) // Cons("Math", Cons("Italian", Nil()))
+  //println(school3.courses) // Cons("Math", Cons("Italian", Nil()))
   println(school3.hasTeacher("John")) // true
   println(school3.hasCourse("Math")) // true
   println(school3.hasCourse("Italian")) // true
